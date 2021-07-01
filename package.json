@@ -25,6 +25,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "express": "^4.17.1",
+    "log4js": "^6.3.0",
     "readline-sync": "^1.4.10"
   }
 }
