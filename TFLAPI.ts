@@ -56,3 +56,35 @@ export async function getArrivalsNearPostcode(postcode: string): Promise<{stopNa
        return {stopName: stop.commonName, arrivals: arrivals.map(extractArrival)}
     }))
 }
+
+interface CarParkLocalData {
+    dateTime?: Date
+    bayCount: number
+    free: number
+    occupied: number
+}
+
+interface CarParkRemoteData {
+    bays: CarParkLocalData[]
+}
+
+function add(a: CarParkLocalData, b: CarParkLocalData) {
+    return {bayCount: a.bayCount + b.bayCount, free: a.free + b.free, occupied: a.occupied + b.occupied};
+}
+
+function getBaysData(carpark: CarParkRemoteData) {
+    return carpark.bays.reduce((result, current) => add(result, {bayCount: current.bayCount, free: current.free, occupied: current.occupied}), {bayCount: 0, free: 0, occupied: 0})
+}
+
+function sumResults(results: CarParkRemoteData[]): CarParkLocalData {
+    return results.reduce((result, current) => add(result, getBaysData(current)), {bayCount: 0, free: 0, occupied: 0});
+}
+
+export let carParkHistory: CarParkLocalData[] = [];
+
+export async function updateCarParkHistory() {
+    const response = await axios.get("https://api.tfl.gov.uk/occupancy/carpark")
+    let data =  sumResults(response.data);
+    data.dateTime = new Date()
+    carParkHistory.push(data)
+}

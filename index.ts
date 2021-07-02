@@ -1,7 +1,7 @@
 // @ts-ignore
 import express from 'express'
 import { configure, getLogger } from "log4js";
-import { getArrivalsNearPostcode } from "./TFLAPI";
+import {carParkHistory, getArrivalsNearPostcode, updateCarParkHistory} from "./TFLAPI";
 
 configure({
     appenders: {
@@ -49,8 +49,14 @@ app.get('/api/departureBoards', (req, res) => {
     }
 })
 
+app.get('/api/carParks', (req, res) => {
+    res.send(carParkHistory);
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
+
+setInterval(updateCarParkHistory, 30 * 1000);
 
 app.use('/frontend', express.static('frontend'));
